@@ -6,7 +6,7 @@ CAMINHO_BANCO = os.path.join(os.path.dirname(__file__), "banco.db")
 def conectar_banco():
     return sqlite3.connect(CAMINHO_BANCO)
 
-def preparar_banco():
+def init_db():
     with conectar_banco() as banco:
         banco.execute("""
             CREATE TABLE IF NOT EXISTS note (
@@ -17,29 +17,7 @@ def preparar_banco():
             )
         """)
 
-    migrar_notas_antigas()
-
-def migrar_notas_antigas():
-    caminho = os.path.join(os.path.dirname(__file__), "static", "data", "notes.json")
-    if not os.path.exists(caminho):
-        return
-
-    with conectar_banco() as banco:
-        quantidade = banco.execute("SELECT COUNT(*) FROM note").fetchone()[0]
-        if quantidade > 0:
-            return
-
-        import json
-        with open(caminho, "r", encoding="utf-8-sig") as arquivo:
-            notas = json.load(arquivo)
-
-        banco.executemany(
-            "INSERT INTO note (title, content) VALUES (?, ?)",
-            [(nota["titulo"], nota["detalhes"]) for nota in notas]
-        )
-
 def carregar_notas():
-    preparar_banco()
     with conectar_banco() as banco:
         banco.row_factory = sqlite3.Row
         notas = banco.execute(
@@ -57,7 +35,7 @@ def carregar_notas():
         for nota in notas
     ]
 
-def load_data(notes):
+def load_data():
     return carregar_notas()
 
 def load_template(index):
@@ -67,7 +45,6 @@ def load_template(index):
         return arquivo.read()
 
 def adiciona_nota(params):
-    preparar_banco()
     with conectar_banco() as banco:
         banco.execute(
             "INSERT INTO note (title, content) VALUES (?, ?)",
@@ -75,7 +52,6 @@ def adiciona_nota(params):
         )
 
 def buscar_nota(identificador):
-    preparar_banco()
     with conectar_banco() as banco:
         banco.row_factory = sqlite3.Row
         nota = banco.execute(
@@ -94,12 +70,10 @@ def buscar_nota(identificador):
     }
 
 def apagar_nota(identificador):
-    preparar_banco()
     with conectar_banco() as banco:
         banco.execute("DELETE FROM note WHERE id = ?", (identificador,))
 
 def atualizar_nota(identificador, titulo, detalhes):
-    preparar_banco()
     with conectar_banco() as banco:
         banco.execute(
             "UPDATE note SET title = ?, content = ? WHERE id = ?",
@@ -107,7 +81,6 @@ def atualizar_nota(identificador, titulo, detalhes):
         )
 
 def alternar_favorita(identificador):
-    preparar_banco()
     with conectar_banco() as banco:
         banco.execute(
             "UPDATE note SET favorite = CASE favorite WHEN 1 THEN 0 ELSE 1 END "

@@ -1,7 +1,8 @@
 from flask import Flask, render_template_string, request, redirect
 import views
-from utils import apagar_nota, alternar_favorita
+from utils import apagar_nota, alternar_favorita, init_db
 
+init_db()
 
 app = Flask(__name__)
 

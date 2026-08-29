@@ -11,7 +11,7 @@ def index():
             favorite_text='★' if dados['favorita'] else '☆',
             favorite_title='desfavoritar' if dados['favorita'] else 'favoritar'
         )
-        for dados in load_data('notes.json')
+        for dados in load_data()
     ]
     notes = '\n'.join(notes_li)
 
