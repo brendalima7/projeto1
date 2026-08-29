@@ -1,0 +1,130 @@
+body {
+    margin: 0;
+    padding: 20px;
+    background-color: #f2f2f2;
+    color: #333;
+    font-family: Arial, sans-serif;
+}
+
+main {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.cabecalho {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.logo {
+    width: 60px;
+}
+
+.cabecalho p {
+    margin: 5px 0;
+}
+
+.formulario {
+    display: grid;
+    gap: 8px;
+    padding: 15px;
+    background-color: white;
+    border: 1px solid #ccc;
+}
+
+label {
+    font-weight: bold;
+}
+
+input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #aaa;
+}
+
+textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: 8px;
+    border: 1px solid #aaa;
+    font-family: Arial, sans-serif;
+}
+
+.botao {
+    justify-self: start;
+    width: auto;
+    padding: 8px 15px;
+    border: 1px solid #555;
+    color: white;
+    background-color: #555;
+    cursor: pointer;
+}
+
+.lista-notas {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 15px;
+    padding: 0;
+    margin-top: 20px;
+    list-style: none;
+}
+
+.card {
+    position: relative;
+    min-height: 100px;
+    padding: 15px;
+    background-color: #fff8b5;
+    border: 1px solid #e0d36b;
+}
+
+.card h3 {
+    margin-top: 0;
+    padding-right: 55px;
+}
+
+.card p {
+    line-height: 1.4;
+}
+
+.card a {
+    margin-right: 10px;
+    color: #555;
+}
+
+.card a[name="delete_button"] {
+    position: absolute;
+    top: 62px;
+    right: 15px;
+    margin: 0;
+}
+
+.card a[name="favorite_button"] {
+    position: absolute;
+    top: 8px;
+    right: 15px;
+    margin: 0;
+}
+
+.card a[name="edit_button"] {
+    position: absolute;
+    top: 35px;
+    right: 15px;
+    margin: 0;
+}
+
+.card .favorita {
+    color: #c58b00;
+    font-weight: bold;
+}
+
+.card .nao-favorita {
+    color: #777;
+    font-size: 20px;
+}
+
+.card a[name="edit_button"],
+.card a[name="delete_button"] {
+    font-size: 20px;
+}

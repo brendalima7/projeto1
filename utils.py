@@ -1,25 +1,116 @@
-import json
 import os
+import sqlite3
+
+CAMINHO_BANCO = os.path.join(os.path.dirname(__file__), "banco.db")
+
+def conectar_banco():
+    return sqlite3.connect(CAMINHO_BANCO)
+
+def preparar_banco():
+    with conectar_banco() as banco:
+        banco.execute("""
+            CREATE TABLE IF NOT EXISTS note (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title TEXT NOT NULL,
+                content TEXT NOT NULL,
+                favorite INTEGER NOT NULL DEFAULT 0
+            )
+        """)
+
+    migrar_notas_antigas()
+
+def migrar_notas_antigas():
+    caminho = os.path.join(os.path.dirname(__file__), "static", "data", "notes.json")
+    if not os.path.exists(caminho):
+        return
+
+    with conectar_banco() as banco:
+        quantidade = banco.execute("SELECT COUNT(*) FROM note").fetchone()[0]
+        if quantidade > 0:
+            return
+
+        import json
+        with open(caminho, "r", encoding="utf-8-sig") as arquivo:
+            notas = json.load(arquivo)
+
+        banco.executemany(
+            "INSERT INTO note (title, content) VALUES (?, ?)",
+            [(nota["titulo"], nota["detalhes"]) for nota in notas]
+        )
+
+def carregar_notas():
+    preparar_banco()
+    with conectar_banco() as banco:
+        banco.row_factory = sqlite3.Row
+        notas = banco.execute(
+            "SELECT id, title, content, favorite FROM note "
+            "ORDER BY favorite DESC, id DESC"
+        ).fetchall()
+
+    return [
+        {
+            "id": nota["id"],
+            "titulo": nota["title"],
+            "detalhes": nota["content"],
+            "favorita": bool(nota["favorite"])
+        }
+        for nota in notas
+    ]
 
 def load_data(notes):
-
-    caminho = os.path.join("static", "data", notes)
-
-    with open(caminho, "r", encoding="utf-8") as arquivo:
-        return json.load(arquivo)
+    return carregar_notas()
 
 def load_template(index):
-
     caminho = os.path.join("static", "templates", index)
 
     with open(caminho, "r", encoding="utf-8") as arquivo:
         return arquivo.read()
 
-def adiciona_nota (params):
+def adiciona_nota(params):
+    preparar_banco()
+    with conectar_banco() as banco:
+        banco.execute(
+            "INSERT INTO note (title, content) VALUES (?, ?)",
+            (params["titulo"], params["detalhes"])
+        )
 
-    caminho = os.path.join("static", "data", "notes.json")
-    anotacoes = load_data("notes.json")
-    anotacoes.append(params)
+def buscar_nota(identificador):
+    preparar_banco()
+    with conectar_banco() as banco:
+        banco.row_factory = sqlite3.Row
+        nota = banco.execute(
+            "SELECT id, title, content, favorite FROM note WHERE id = ?",
+            (identificador,)
+        ).fetchone()
 
-    with open(caminho, "w", encoding="utf-8") as arquivo:
-        json.dump(anotacoes, arquivo, ensure_ascii=False, indent=2)
+    if nota is None:
+        return None
+
+    return {
+        "id": nota["id"],
+        "titulo": nota["title"],
+        "detalhes": nota["content"],
+        "favorita": bool(nota["favorite"])
+    }
+
+def apagar_nota(identificador):
+    preparar_banco()
+    with conectar_banco() as banco:
+        banco.execute("DELETE FROM note WHERE id = ?", (identificador,))
+
+def atualizar_nota(identificador, titulo, detalhes):
+    preparar_banco()
+    with conectar_banco() as banco:
+        banco.execute(
+            "UPDATE note SET title = ?, content = ? WHERE id = ?",
+            (titulo, detalhes, identificador)
+        )
+
+def alternar_favorita(identificador):
+    preparar_banco()
+    with conectar_banco() as banco:
+        banco.execute(
+            "UPDATE note SET favorite = CASE favorite WHEN 1 THEN 0 ELSE 1 END "
+            "WHERE id = ?",
+            (identificador,)
+        )

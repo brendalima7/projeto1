@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Editar anotação</title>
+<link rel="stylesheet" href="{{{{ url_for('static', filename='getit.css') }}}}">
+</head>
+<body>
+<main>
+    <h1>Editar anotação</h1>
+    <form class="formulario" action="/update" method="POST">
+        <input type="hidden" name="id" value="{id}">
+        <label for="titulo">Título</label>
+        <input id="titulo" type="text" name="titulo" value="{title}">
+        <label for="detalhes">Detalhes</label>
+        <textarea id="detalhes" name="detalhes">{details}</textarea>
+        <input class="botao" type="submit" value="Salvar">
+        <a href="/">Cancelar</a>
+    </form>
+</main>
+</body>
+</html>
