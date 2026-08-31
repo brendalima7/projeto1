@@ -22,7 +22,7 @@ def carregar_notas():
         banco.row_factory = sqlite3.Row
         notas = banco.execute(
             "SELECT id, title, content, favorite FROM note "
-            "ORDER BY favorite DESC, id DESC"
+            "ORDER BY favorite DESC, id ASC"
         ).fetchall()
 
     return [
